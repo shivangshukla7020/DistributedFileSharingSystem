@@ -1,0 +1,97 @@
+/*
+Distributed File Sharing System - Client Flow
+
+1. Client Initialization
+   - User opens ConnectToServerDialogGUI
+   - User enters:
+        - Server IPv4 address
+        - Server port
+        - Client network port
+        - Port for receiving files
+        - Client name
+        - Folder to share
+   - User clicks "Connect to Server"
+
+2. Client Validation
+   - Validate IP address format
+   - Validate port numbers in range 1024-65535
+   - Validate shared folder exists
+   - Show error message if validation fails
+
+3. Prepare File List
+   - Recursively scan the shared directory
+   - Include files from subdirectories
+   - Use Files.walk to collect all files:
+       Files.walk(Paths.get(sharedDirectory))
+            .filter(Files::isRegularFile)
+            .map(path -> path.toFile())
+            .toArray(File[]::new)
+   - Store file list in Client object
+
+4. Send Login Request
+   - Create Client object with:
+        - Name, IP, Network Port, Files
+   - Create CommunicationProtocol object:
+        - codeProtocol = "LOGIN"
+        - clientForLogin = Client object
+   - Send CommunicationProtocol to server via ObjectOutputStream over TCP
+
+5. Server Response
+   - Server validates login and responds with CommunicationProtocol:
+        - codeProtocol = "OK" (or error)
+        - message = success/error message
+        - multicastGroup & multicastGroupPort
+        - activeClients list
+   - Client reads response via ObjectInputStream
+
+6. Client Post-Login
+   - If login successful:
+        - Show success message
+        - Update MainGUI with:
+            - Client info
+            - Server info
+            - Multicast group info
+            - Active clients list
+            - Shared files list
+   - Client is now registered and connected
+
+7. File Sharing (after login)
+   - Client can request files from other clients or update files on server
+   - CommunicationProtocol fields:
+        - fileForRequest: request a file
+        - filesForUpdate: update files
+   - File transfer happens via TCP sockets (directly or server-mediated)
+
+8. Multicast Group (optional)
+   - Server may assign a multicast group for:
+        - Broadcasting messages
+        - Synchronizing updates
+   - Clients join multicast using:
+        - multicastGroup address
+        - multicastGroupPort
+
+Flow Summary (Simplified):
+
+[User] 
+   |
+   v
+[Client GUI]
+   |  Enter Server IP, Ports, Folder, Name
+   v
+[Validate Input & Scan Files]
+   |
+   v
+[Create Client & Protocol Objects]
+   |
+   v
+[Connect TCP Socket to Server] ---> [Server]
+   |                                 |
+   |  Send LOGIN Protocol           Validate client
+   |                                 |
+   | <--- Receive Response Protocol -|
+   |
+   v
+[Success?] ----> Yes ---> Update Main GUI with active clients & multicast
+             \
+              No ---> Show error
+*/
