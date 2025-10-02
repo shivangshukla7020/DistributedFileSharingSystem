@@ -14,7 +14,6 @@ import java.net.MulticastSocket;
 import java.net.Socket;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -40,15 +39,15 @@ public class ClientConnectionHandler implements Runnable{
     @Override
     public void run() {
         try {
-            //Criar os streams
+            //Create the streams
             objectOutput = new ObjectOutputStream(clientSocket.getOutputStream());
             objectOutput.flush();
             objectInput = new ObjectInputStream(clientSocket.getInputStream());
             
-            //Obter o request do client
+            // Get the client request
             CommunicationProtocol request = (CommunicationProtocol) objectInput.readObject();
             
-            //Responder o request
+            // Respond to the request
             switch(request.getCodeProtocol()){
                 case "LOGIN":
                     loginRequest(request);
@@ -60,24 +59,24 @@ public class ClientConnectionHandler implements Runnable{
                     logoutRequest(request);
                     break;
                 case "TRANSFER_REPORT":
-                    LocalTime tempoAtual = LocalTime.now();
-                    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-                    String tempoAtualStr = tempoAtual.format(dateFormatter);
+                    LocalTime currentTime = LocalTime.now();
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                    String currentTimeStr = currentTime.format(dateTimeFormatter);
                     
-                    //Responder o request
+                    // Respond to request
                     response.setCodeProtocol("OK");
-                    response.setMessage("Informe recebido");
+                    response.setMessage("Report received");
                     sendResponse();
 
-                    //Informar aos utilizadores da transferencia
-                    CommunicationProtocol messageLogin = new CommunicationProtocol("NOTIFICATION");
-                    messageLogin.setMessage(tempoAtualStr + "  -  " + "O utilizador " + request.getSenderName() + " transferiu um ficheiro do utilizador " + request.getTargetName());
-                    notificarGrupoMulticast(messageLogin);
+                    //Inform the users of the transfer
+                    CommunicationProtocol loginMessage = new CommunicationProtocol("NOTIFICATION");
+                    loginMessage.setMessage(currentTimeStr + "  -  " + "User " + request.getSenderName() + " transferred a file from user " + request.getTargetName());
+                    notifyMulticastGroup(loginMessage);
                     break;
                     
                 default:
                     response.setCodeProtocol("ERROR");
-                    response.setMessage("Pedido invalido");
+                    response.setMessage("Invalid request");
                     sendResponse();
                     break;
             }
@@ -96,11 +95,10 @@ public class ClientConnectionHandler implements Runnable{
     }
     
     private void loginRequest(CommunicationProtocol request){
-        //Obter o cliente
         Client clientForLogin = request.getClientForLogin();
         boolean duplicateFlag = false;
         
-        //Verificar se o name é duplicado
+        //Check if the username is already taken
         synchronized(connectedClients){
             for(Client client : connectedClients){
                 if(client.getName().equalsIgnoreCase(clientForLogin.getName())){
@@ -112,12 +110,12 @@ public class ClientConnectionHandler implements Runnable{
         }
         
         
-        //Se for duplicado, enviamos mensagem de erro, caso contrario, registamos ao utilizador
+        //If it is a duplicate, we send an error message, otherwise, we register the user
         if(duplicateFlag){
-            //Enviamos a resposta de Erro
+            //Send error response
             sendResponse();
             
-            //Fechamos os recursos abertos
+            //Close the open resources
             try {
                 objectInput.close();
             } catch (IOException ex) {
@@ -125,8 +123,10 @@ public class ClientConnectionHandler implements Runnable{
             }
         }
         else{
-            //Criamos uma resposta de sucesso e enviamos
+            //Add the new client to the list
             connectedClients.add(clientForLogin);
+
+            //Send login success response
             response.setCodeProtocol("OK");
             response.setMessage("Login successful");
             response.setActiveClients(connectedClients);
@@ -134,34 +134,33 @@ public class ClientConnectionHandler implements Runnable{
             response.setMulticastGroupPort(multicastGroupPort);
             sendResponse();
             
-            //Informamos aos utilizadores da alteração de clientes ativos
+            //Notify all clients about the updated active client list
             CommunicationProtocol messageNotification = new CommunicationProtocol("ACTIVE_CLIENTS_UPDATE");
             messageNotification.setActiveClients(connectedClients);
-            notificarGrupoMulticast(messageNotification);
+            notifyMulticastGroup(messageNotification);
             
-            //Fechamos os recursos abertos
             try {
                 objectInput.close();
             } catch (IOException ex) {
                 Logger.getLogger(ClientConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-            //Notificamos o login a todos os utilizadores da rede
-            LocalTime tempoAtual = LocalTime.now();
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-            String tempoAtualStr = tempoAtual.format(dateFormatter);
+            //Notify all the users about the new login
+            LocalTime currentTime = LocalTime.now();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+            String currentTimeStr = currentTime.format(dateTimeFormatter);
             
-            CommunicationProtocol messageLogin = new CommunicationProtocol("NOTIFICATION");
-            messageLogin.setMessage(tempoAtualStr + "  -  " + "O utilizador " + clientForLogin.getName() + " fez login");
-            notificarGrupoMulticast(messageLogin);
+            CommunicationProtocol loginMessage = new CommunicationProtocol("NOTIFICATION");
+            loginMessage.setMessage(currentTimeStr + "  -  " + "User " + clientForLogin.getName() + " logged in");
+            notifyMulticastGroup(loginMessage);
         } 
     }
     
     private void updateFilesRequest(CommunicationProtocol request){
-        //Obter os ficheiros novos 
+        //Get the new files 
         File[] filesForUpdate = request.getFilesForUpdate();
         
-        //Obter utilizador que fez o request
+        //Get the client who made the request
         synchronized(connectedClients){
             for(Client client : connectedClients){
                 if(client.getName().equals(request.getSenderName())){
@@ -171,51 +170,51 @@ public class ClientConnectionHandler implements Runnable{
         }
         
         
-        //Informar ao cliente que a operação foi bem sucedida
+        //Inform the client that the operation was successful
         response.setCodeProtocol("OK");
         response.setMessage("Files updated successfully");
         sendResponse();
         
-        //Informar os clientes da alteracao
+        //Inform all clients about the update
         CommunicationProtocol message = new CommunicationProtocol("CLIENT_FILES_UPDATED");
         message.setActiveClients(connectedClients);
-        notificarGrupoMulticast(message);
+        notifyMulticastGroup(message);
     }
     
     private void logoutRequest(CommunicationProtocol request){
-        //Obter o name do quem fez o request
-        String nameSender = request.getSenderName();
+        //Get the name of the client who made the request
+        String senderName = request.getSenderName();
         
-        //Remover o cliente da lista de clientes ligados
+        //Remove the client from the list of connected clients
         synchronized(connectedClients){
             Iterator<Client> iterator = connectedClients.iterator();
             while(iterator.hasNext()){
                 Client client = iterator.next();
-                if(client.getName().equals(nameSender)){
+                if(client.getName().equals(senderName)){
                     iterator.remove();
                 }
             }
         }
         
         
-        //Informar ao cliente que a operação foi bem sucedida
+        //Inform the client that the operation was successful
         response.setCodeProtocol("OK");
         response.setMessage("Logout realizado com sucesso");
         sendResponse();
         
-        //Informar alteracao dos clientes ligados
+        //Inform all clients about the updated client list
         CommunicationProtocol message = new CommunicationProtocol("CLIENT_LIST_ALTERED");
         message.setActiveClients(connectedClients);
-        notificarGrupoMulticast(message);
+        notifyMulticastGroup(message);
         
-        //Notificamos o logout a todos os utilizadores da rede
-        LocalTime tempoAtual = LocalTime.now();
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        String tempoAtualStr = tempoAtual.format(dateFormatter);
+        //Notify all clients in the network about the logout
+        LocalTime currentTime = LocalTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        String currentTimeStr = currentTime.format(dateTimeFormatter);
 
-        CommunicationProtocol messageLogout = new CommunicationProtocol("NOTIFICATION");
-        messageLogout.setMessage(tempoAtualStr + "  -  " + "O utilizador " + nameSender + " fez logout");
-        notificarGrupoMulticast(messageLogout);
+        CommunicationProtocol logoutMessage = new CommunicationProtocol("NOTIFICATION");
+        logoutMessage.setMessage(currentTimeStr + "  -  " + "User " + senderName + " logged out");
+        notifyMulticastGroup(logoutMessage);
     }
     
     private void sendResponse(){
@@ -228,7 +227,7 @@ public class ClientConnectionHandler implements Runnable{
         }
     }
     
-    private void notificarGrupoMulticast(CommunicationProtocol messageNotification){
+    private void notifyMulticastGroup(CommunicationProtocol messageNotification){
         MulticastSocket multicastSocket = null;
         DatagramPacket dp = null;
         try {
@@ -237,7 +236,7 @@ public class ClientConnectionHandler implements Runnable{
             Logger.getLogger(ClientConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        //Serializar mensagem e enviar
+        //Serialize message and send
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream);
@@ -249,7 +248,7 @@ public class ClientConnectionHandler implements Runnable{
             
             multicastSocket.send(dp);
             
-            //Fechar recursos
+            //Close resources
             multicastSocket.close();
             objectOutputStream.close();
             
