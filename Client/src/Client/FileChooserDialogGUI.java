@@ -64,11 +64,11 @@ public class FileChooserDialogGUI extends javax.swing.JDialog {
         
         if(directorySelected != null && directorySelected.isDirectory()){
             String path = directorySelected.getAbsolutePath();
-            connectToServerDialog.recebirDiretorioFromDialog(path);
+            connectToServerDialog.receiveDirectoryFromDialog(path);
             dispose();
         }
         else{
-            JOptionPane.showMessageDialog(null, "Diretorio não selecionado ou invalido", "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Directory not selected/invalid", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jFileChooserActionPerformed
 

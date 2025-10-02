@@ -259,7 +259,7 @@ public class ConnectToServerDialogGUI extends javax.swing.JDialog {
         fileChooserDialog.setVisible(true);
     }//GEN-LAST:event_chooseFolderButtonActionPerformed
 
-    public void recebirDiretorioFromDialog(String path){
+    public void receiveDirectoryFromDialog(String path){
         pathToSharedDirectory = path;
         sharedFolderTextField.setText(path);
     }
