@@ -13,29 +13,28 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    static List<Client> clientesLigados;
-    static InetAddress grupoMulticastInet;
-    static int grupoMulticastPorto;
+    static List<Client> connectedClients;
+    static InetAddress multicastGroupAddress;
+    static int multicastGroupPort;
     
     public static void main(String[] args){
-        inicializarConfig();
-        
+        initializeConfig();
     }
     
-    private static void inicializarConfig(){
+    private static void initializeConfig(){
         //Initialize variables
-        clientesLigados = Collections.synchronizedList(new ArrayList<Client>());
+        connectedClients = Collections.synchronizedList(new ArrayList<Client>());
         Scanner scan = new Scanner(System.in);
         
         //Get port
         int port;
         while(true){
-            System.out.print("Enter the port:");
+            System.out.print("Enter the server port:");
             try{
                 port = Integer.parseInt(scan.nextLine());
             }
             catch(NumberFormatException e){
-                System.out.println("Invalid port, please try again\n");
+                System.out.println("Invalid server port, please try again\n");
                 continue;
             }
             break;
@@ -43,12 +42,12 @@ public class Main {
         
         // Get multicast group
         while(true){
-            System.out.print("Enter the multicast group: ");
+            System.out.print("Enter the multicast group Inet address: ");
             String grupoMulticast = scan.nextLine();
             try {
-                grupoMulticastInet = InetAddress.getByName(grupoMulticast);
+                multicastGroupAddress = InetAddress.getByName(grupoMulticast);
             } catch (UnknownHostException ex) {
-                System.out.println("Invalid multicast group, please try again\n");
+                System.out.println("Invalid multicast group Inet Address, please try again\n");
                 continue;
             }
             break;
@@ -58,7 +57,7 @@ public class Main {
         while(true){
             System.out.print("Enter the multicast group port: ");
             try{
-                grupoMulticastPorto = Integer.parseInt(scan.nextLine());
+                multicastGroupPort = Integer.parseInt(scan.nextLine());
             }
             catch(NumberFormatException e){
                 System.out.println("Invalid port, please try again\n");
@@ -78,10 +77,10 @@ public class Main {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Connection received from client at: " + clientSocket.getInetAddress().getHostAddress());
                 
-                //Enviar ligação a uma thread aparte
-                new Thread(new ClientConnectionHandler(clientSocket, clientesLigados, grupoMulticastInet, grupoMulticastPorto)).start();
+                //Assign connection to a separate thread
+                new Thread(new ClientConnectionHandler(clientSocket, connectedClients, multicastGroupAddress, multicastGroupPort)).start();
                 
-                /*for(Client client : clientesLigados){
+                /*for(Client client : connectedClients){
                     System.out.println("------------------------CLIENTE--------------------------------");
                     System.out.println(client.getNome() + "\n");
                     System.out.println(client.getIpv4() + "\n");
