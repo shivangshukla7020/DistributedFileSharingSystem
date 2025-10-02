@@ -29,7 +29,7 @@ public class Main {
         //Get port
         int port;
         while(true){
-            System.out.print("Enter the server port:");
+            System.out.print("Enter the server port: ");
             try{
                 port = Integer.parseInt(scan.nextLine());
             }
@@ -71,7 +71,7 @@ public class Main {
             InetAddress inetAddress = InetAddress.getLocalHost();
             ServerSocket serverSocket = new ServerSocket(port);
             
-            System.out.println("Server started at\nIPv4 Address : " + inetAddress.getHostAddress() + "\n" + "Porto : " + String.valueOf(port) + "\n");
+            System.out.println("Server started at\nIPv4 Address : " + inetAddress.getHostAddress() + "\n" + "Port : " + String.valueOf(port) + "\n");
             
             while(true){
                 Socket clientSocket = serverSocket.accept();
@@ -82,7 +82,7 @@ public class Main {
                 
                 /*for(Client client : connectedClients){
                     System.out.println("------------------------CLIENTE--------------------------------");
-                    System.out.println(client.getNome() + "\n");
+                    System.out.println(client.getName() + "\n");
                     System.out.println(client.getIpv4() + "\n");
                     for(File file : client.getFiles()){
                         System.out.println(file.getName());
