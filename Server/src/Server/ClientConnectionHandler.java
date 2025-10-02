@@ -22,19 +22,19 @@ import java.util.logging.Logger;
 
 public class ClientConnectionHandler implements Runnable{
     private Socket clientSocket;
-    private List<Client> clientesLigados;
-    private InetAddress grupoMulticast;
-    private int grupoMulticastPorto;
+    private List<Client> connectedClients;
+    private InetAddress multicastGroup;
+    private int multicastGroupPort;
     private CommunicationProtocol response;
     private ObjectOutputStream objectOutput = null;
     private ObjectInputStream objectInput = null;
     
-    public ClientConnectionHandler(Socket aClientSocket, List<Client> aClientesLigados, InetAddress aGrupoMulticast, int aGrupoMulticastPorto){
-        clientSocket = aClientSocket;
-        clientesLigados = aClientesLigados;
-        response = new CommunicationProtocol();
-        grupoMulticast = aGrupoMulticast;
-        grupoMulticastPorto = aGrupoMulticastPorto;
+    public ClientConnectionHandler(Socket clientSocket, List<Client> connectedClients, InetAddress multicastGroup, int multicastGroupPort){
+        this.clientSocket = clientSocket;
+        this.connectedClients = connectedClients;
+        this.response = new CommunicationProtocol();
+        this.multicastGroup = multicastGroup;
+        this.multicastGroupPort = multicastGroupPort;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class ClientConnectionHandler implements Runnable{
 
                     //Informar aos utilizadores da transferencia
                     CommunicationProtocol messageLogin = new CommunicationProtocol("NOTIFICATION");
-                    messageLogin.setMessage(tempoAtualStr + "  -  " + "O utilizador " + request.getNameSender() + " transferiu um ficheiro do utilizador " + request.getNameTarget());
+                    messageLogin.setMessage(tempoAtualStr + "  -  " + "O utilizador " + request.getSenderName() + " transferiu um ficheiro do utilizador " + request.getTargetName());
                     notificarGrupoMulticast(messageLogin);
                     break;
                     
@@ -101,8 +101,8 @@ public class ClientConnectionHandler implements Runnable{
         boolean duplicateFlag = false;
         
         //Verificar se o name é duplicado
-        synchronized(clientesLigados){
-            for(Client client : clientesLigados){
+        synchronized(connectedClients){
+            for(Client client : connectedClients){
                 if(client.getName().equalsIgnoreCase(clientForLogin.getName())){
                     response.setCodeProtocol("ERROR");
                     response.setMessage("Duplicate name");
@@ -126,17 +126,17 @@ public class ClientConnectionHandler implements Runnable{
         }
         else{
             //Criamos uma resposta de sucesso e enviamos
-            clientesLigados.add(clientForLogin);
+            connectedClients.add(clientForLogin);
             response.setCodeProtocol("OK");
             response.setMessage("Login successful");
-            response.setActiveClients(clientesLigados);
-            response.setGrupoMulticast(grupoMulticast.getHostAddress());
-            response.setGrupoMulticastPorto(grupoMulticastPorto);
+            response.setActiveClients(connectedClients);
+            response.setMulticastGroup(multicastGroup.getHostAddress());
+            response.setMulticastGroupPort(multicastGroupPort);
             sendResponse();
             
             //Informamos aos utilizadores da alteração de clientes ativos
             CommunicationProtocol messageNotification = new CommunicationProtocol("ACTIVE_CLIENTS_UPDATE");
-            messageNotification.setActiveClients(clientesLigados);
+            messageNotification.setActiveClients(connectedClients);
             notificarGrupoMulticast(messageNotification);
             
             //Fechamos os recursos abertos
@@ -162,9 +162,9 @@ public class ClientConnectionHandler implements Runnable{
         File[] filesForUpdate = request.getFilesForUpdate();
         
         //Obter utilizador que fez o request
-        synchronized(clientesLigados){
-            for(Client client : clientesLigados){
-                if(client.getName().equals(request.getNameSender())){
+        synchronized(connectedClients){
+            for(Client client : connectedClients){
+                if(client.getName().equals(request.getSenderName())){
                     client.setFiles(filesForUpdate);
                 }
             }
@@ -178,17 +178,17 @@ public class ClientConnectionHandler implements Runnable{
         
         //Informar os clientes da alteracao
         CommunicationProtocol message = new CommunicationProtocol("CLIENT_FILES_UPDATED");
-        message.setActiveClients(clientesLigados);
+        message.setActiveClients(connectedClients);
         notificarGrupoMulticast(message);
     }
     
     private void logoutRequest(CommunicationProtocol request){
         //Obter o name do quem fez o request
-        String nameSender = request.getNameSender();
+        String nameSender = request.getSenderName();
         
         //Remover o cliente da lista de clientes ligados
-        synchronized(clientesLigados){
-            Iterator<Client> iterator = clientesLigados.iterator();
+        synchronized(connectedClients){
+            Iterator<Client> iterator = connectedClients.iterator();
             while(iterator.hasNext()){
                 Client client = iterator.next();
                 if(client.getName().equals(nameSender)){
@@ -205,7 +205,7 @@ public class ClientConnectionHandler implements Runnable{
         
         //Informar alteracao dos clientes ligados
         CommunicationProtocol message = new CommunicationProtocol("CLIENT_LIST_ALTERED");
-        message.setActiveClients(clientesLigados);
+        message.setActiveClients(connectedClients);
         notificarGrupoMulticast(message);
         
         //Notificamos o logout a todos os utilizadores da rede
@@ -245,7 +245,7 @@ public class ClientConnectionHandler implements Runnable{
             objectOutputStream.flush();
             
             byte[] data = byteStream.toByteArray();
-            dp = new DatagramPacket(data, data.length, grupoMulticast, grupoMulticastPorto);
+            dp = new DatagramPacket(data, data.length, multicastGroup, multicastGroupPort);
             
             multicastSocket.send(dp);
             
