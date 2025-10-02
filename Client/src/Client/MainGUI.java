@@ -18,10 +18,8 @@ import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -34,20 +32,20 @@ import javax.swing.JOptionPane;
 
 public class MainGUI extends javax.swing.JFrame {
     ConnectToServerDialogGUI connectToServerDialog;
-    private String nameCliente;
+    private String clientName;
     private String pathToSharedDirectory;
     private String ipOwnerSharedDirectory;
-    private File[] ficheirosPartilhados;
-    private int portServer;
-    private int portFiles;
-    private int portNetwork;
-    private InetAddress ipServerInet;
-    private String grupoMulticast;
+    private File[] sharedFiles;
+    private int serverPort;
+    private int filesPort;
+    private int networkPort;
+    private InetAddress serverIpInet;
+    private String multicastGroup;
     private MulticastSocket multicastSocket;
     private ServerSocket serverNetworkSocket;
-    private int grupoMulticastPorto;
-    private List<Client> clientesLigados;
-    private Client clienteSelecionado;
+    private int multicastGroupPort;
+    private List<Client> connectedClients;
+    private Client selectedClient;
     private volatile boolean running = true;
     private Thread listenMulticastThread;
     private Thread listenFileThread;
@@ -56,7 +54,7 @@ public class MainGUI extends javax.swing.JFrame {
     
 
     /**
-     * Creates new form NewJFrame
+     * Creates a new form NewJFrame
      */
     public MainGUI() {
         initComponents();
@@ -256,7 +254,7 @@ public class MainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_ligarServerButtonActionPerformed
 
     private void transferirFicheiroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transferirFicheiroButtonActionPerformed
-        System.out.println("Yo hice el pedido");
+        System.out.println("I made the request");
         int respostaSubstituirDialog = JOptionPane.OK_OPTION;
         int respostaTransferenciaDialog = JOptionPane.NO_OPTION;
         String fileSelected = listaUtilizadoresAtivos.getSelectedValue();
@@ -275,7 +273,7 @@ public class MainGUI extends javax.swing.JFrame {
         }
         
         //Dialog de substituição
-        for(File file : ficheirosPartilhados){
+        for(File file : sharedFiles){
             if(file.getName().equals(fileSelected)){
                 respostaSubstituirDialog = JOptionPane.showConfirmDialog(null, "The file already exists in your shared directory. Do you want to replace it?", "Replace file", JOptionPane.OK_CANCEL_OPTION);
             }
@@ -287,11 +285,11 @@ public class MainGUI extends javax.swing.JFrame {
         
         //Pedir ficheiro
         try{
-            Socket requestSocket = new Socket(ipOwnerSharedDirectory, clienteSelecionado.getNetworkPort());
+            Socket requestSocket = new Socket(ipOwnerSharedDirectory, selectedClient.getNetworkPort());
             
             CommunicationProtocol requestMessage = new CommunicationProtocol("REQUEST_FILE");
             requestMessage.setFileForRequest(fileSelected);
-            requestMessage.setPortForSendingFile(portFiles);
+            requestMessage.setPortForSendingFile(filesPort);
             
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(requestSocket.getOutputStream());
             objectOutputStream.writeObject(requestMessage);
@@ -307,7 +305,7 @@ public class MainGUI extends javax.swing.JFrame {
         
         //Recebir ficheiro
         try {
-            ServerSocket serverSocket = new ServerSocket(portFiles);
+            ServerSocket serverSocket = new ServerSocket(filesPort);
             
             Socket responseSocket = serverSocket.accept();
             
@@ -338,11 +336,11 @@ public class MainGUI extends javax.swing.JFrame {
         
         //Informar ao servidor da transferencia
         CommunicationProtocol transferReportMessage = new CommunicationProtocol("TRANSFER_REPORT");
-        transferReportMessage.setSenderName(nameCliente);
-        transferReportMessage.setTargetName(clienteSelecionado.getName());
+        transferReportMessage.setSenderName(clientName);
+        transferReportMessage.setTargetName(selectedClient.getName());
         
         try {
-            Socket socket = new Socket(ipServerInet, portServer);
+            Socket socket = new Socket(serverIpInet, serverPort);
             
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
@@ -367,20 +365,20 @@ public class MainGUI extends javax.swing.JFrame {
     private void desligarServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_desligarServerButtonActionPerformed
         //Abandonamos o grupo multicast primeiro para evitar que o servidor ao notificar do nosso logout
         //nos propios recebamos essa mensagem
-        InetAddress grupoMulticastInet;
+        InetAddress multicastGroupInet;
         try {
-            grupoMulticastInet = InetAddress.getByName(grupoMulticast);
-            multicastSocket.leaveGroup(grupoMulticastInet);
+            multicastGroupInet = InetAddress.getByName(multicastGroup);
+            multicastSocket.leaveGroup(multicastGroupInet);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Ocorreu um problema ao abandonar o grupo multicast", "ERRO", JOptionPane.ERROR_MESSAGE);
         }
                    
         //Fazer request para logout ao servidor
         CommunicationProtocol logoutRequest = new CommunicationProtocol("LOGOUT");
-        logoutRequest.setSenderName(nameCliente);
+        logoutRequest.setSenderName(clientName);
         
         try {
-            Socket socket = new Socket(ipServerInet.getHostAddress(), portServer);
+            Socket socket = new Socket(serverIpInet.getHostAddress(), serverPort);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
             
@@ -405,16 +403,16 @@ public class MainGUI extends javax.swing.JFrame {
         } 
         
         //Apagar os dados de sessão com o servidor
-        nameCliente = "";
-        portServer = -1;
-        portFiles = -1;
-        portNetwork = -1;
-        ipServerInet = null;
-        grupoMulticast = null;
-        grupoMulticastPorto = -1;
+        clientName = "";
+        serverPort = -1;
+        filesPort = -1;
+        networkPort = -1;
+        serverIpInet = null;
+        multicastGroup = null;
+        multicastGroupPort = -1;
         pathToSharedDirectory = "";
-        ficheirosPartilhados = null;
-        clientesLigados = null;
+        sharedFiles = null;
+        connectedClients = null;
         
         ligarServerButton.setEnabled(true);
         verPastaPartilhada.setEnabled(false);
@@ -449,9 +447,9 @@ public class MainGUI extends javax.swing.JFrame {
         String userSelected = listaUtilizadoresAtivos.getSelectedValue();
         String name = userSelected.split("-")[0].trim();
         ipOwnerSharedDirectory = userSelected.split("-")[1].trim();
-        for(Client client : clientesLigados){
+        for(Client client : connectedClients){
             if(client.getName().equalsIgnoreCase(name)){
-                clienteSelecionado = client;
+                selectedClient = client;
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
@@ -475,7 +473,7 @@ public class MainGUI extends javax.swing.JFrame {
             @Override
             public void run() {
                 DefaultListModel<String> modelList = new DefaultListModel<String>();
-                for(Client client : clientesLigados){
+                for(Client client : connectedClients){
                     modelList.addElement(client.getName() + " - " + client.getIpv4());
                 }
                 listaUtilizadoresAtivos.setModel(modelList);
@@ -483,7 +481,7 @@ public class MainGUI extends javax.swing.JFrame {
                 transferirFicheiroButton.setEnabled(false);
                 verPastaPartilhada.setEnabled(true);
                 ipOwnerSharedDirectory = "";
-                clienteSelecionado = null;
+                selectedClient = null;
             }
         
         });
@@ -492,7 +490,7 @@ public class MainGUI extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         int resposta = JOptionPane.showConfirmDialog(this, "Would you like to close the program?", "Exit Program", JOptionPane.YES_NO_CANCEL_OPTION);
         if(resposta == JOptionPane.YES_OPTION){
-            if(ipServerInet != null){
+            if(serverIpInet != null){
                 desligarServerButtonActionPerformed(null);
                 System.exit(0);
             }
@@ -502,26 +500,26 @@ public class MainGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_formWindowClosing
 
-    public void recebirDadosLoginFromDialog(String aName, int aPortServer, int aPortFiles, int aPortNetwork, InetAddress aIpServerInet, String aGrupoMulticast, int aGrupoMulticastPorto, String aPathToSharedDirectory, List<Client> aClientesLigados, File[] aFicheirosPartilhados){
+    public void recebirDadosLoginFromDialog(String clientName, int serverPort, int filesPort, int networkPort, InetAddress serverIpInet, String multicastGroup, int multicastGroupPort, String PathToSharedDirectory, List<Client> connectedClients, File[] sharedFiles){
         //Obter dados
-        nameCliente = aName;
-        portServer = aPortServer;
-        portFiles = aPortFiles;
-        portNetwork = aPortNetwork;
-        ipServerInet = aIpServerInet;
-        grupoMulticast = aGrupoMulticast;
-        grupoMulticastPorto = aGrupoMulticastPorto;
-        pathToSharedDirectory = aPathToSharedDirectory;
-        ficheirosPartilhados = aFicheirosPartilhados;
-        clientesLigados = aClientesLigados;
-        connectToServerDialog.setVisible(false);
+        this.clientName = clientName;
+        this.serverPort = serverPort;
+        this.filesPort = filesPort;
+        this.networkPort = networkPort;
+        this.serverIpInet = serverIpInet;
+        this.multicastGroup = multicastGroup;
+        this.multicastGroupPort = multicastGroupPort;
+        this.pathToSharedDirectory = PathToSharedDirectory;
+        this.sharedFiles = sharedFiles;
+        this.connectedClients = connectedClients;
+        this.connectToServerDialog.setVisible(false);
         
         //Atualizar lista
         java.awt.EventQueue.invokeLater(new Runnable(){
             @Override
             public void run() {
                 DefaultListModel<String> modelList = new DefaultListModel<String>();
-                for(Client client : clientesLigados){
+                for(Client client : connectedClients){
                     modelList.addElement(client.getName() + " - " + client.getIpv4());
                 }
                 listaUtilizadoresAtivos.setModel(modelList);
@@ -577,9 +575,9 @@ public class MainGUI extends javax.swing.JFrame {
     private void listenMulticastGroup(){
         CommunicationProtocol message = null;
         try {
-            multicastSocket = new MulticastSocket(grupoMulticastPorto);
-            InetAddress grupoMulticastInet = InetAddress.getByName(grupoMulticast);
-            multicastSocket.joinGroup(grupoMulticastInet);
+            multicastSocket = new MulticastSocket(multicastGroupPort);
+            InetAddress multicastGroupInet = InetAddress.getByName(multicastGroup);
+            multicastSocket.joinGroup(multicastGroupInet);
             
             byte[] buffer = new byte[4096];
             DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
@@ -605,13 +603,13 @@ public class MainGUI extends javax.swing.JFrame {
                 //Processar a mensagem
                 switch(message.getCodeProtocol()){
                     case "ACTIVE_CLIENTS_UPDATE":
-                        clientesLigados = message.getActiveClients();
+                        connectedClients = message.getActiveClients();
                         //Atualizar lista
                         java.awt.EventQueue.invokeLater(new Runnable(){
                             @Override
                             public void run() {
                                 DefaultListModel<String> modelList = new DefaultListModel<String>();
-                                for(Client client : clientesLigados){
+                                for(Client client : connectedClients){
                                     modelList.addElement(client.getName() + " - " + client.getIpv4());
                                 }
                                 listaUtilizadoresAtivos.setModel(modelList);
@@ -622,15 +620,15 @@ public class MainGUI extends javax.swing.JFrame {
                         
                     case "CLIENT_FILES_UPDATED":
                         //Guardamos a nova lista de clientes ligados (É nova porque algum utilizador mudou a sua lista de ficheiros partilhados)
-                        clientesLigados = message.getActiveClients();
+                        connectedClients = message.getActiveClients();
                         
                         //Se existe um cliente selecionado, atualizamos a lista de ficheiros que o utilizador
                         //esta a ver do mesmo. Caso contrario, a lista nova de ficheiros sera apresentada da proxima vez 
                         //quando o utilizador clicar no cliente que deseja ver
-                        if(clienteSelecionado != null){
-                            for(Client client : clientesLigados){
-                                if(client.getName().equalsIgnoreCase(clienteSelecionado.getName())){
-                                    clienteSelecionado = client;
+                        if(selectedClient != null){
+                            for(Client client : connectedClients){
+                                if(client.getName().equalsIgnoreCase(selectedClient.getName())){
+                                    selectedClient = client;
                                     java.awt.EventQueue.invokeLater(new Runnable() {
                                         @Override
                                         public void run() {
@@ -649,9 +647,9 @@ public class MainGUI extends javax.swing.JFrame {
                         
                     case "CLIENT_LIST_ALTERED":
                         //Guardamos a nova lista de clientes ligados (É nova porque algum utilizador fez logout e já não está listado)
-                        clientesLigados = message.getActiveClients();
+                        connectedClients = message.getActiveClients();
                         
-                        //Caso o cliente selecionado não estiver em clientesLigados, quer dizer que o utilizador esta a ver a pasta partilhada
+                        //Caso o cliente selecionado não estiver em connectedClients, quer dizer que o utilizador esta a ver a pasta partilhada
                         //de um utilizador que fez logout, portanto o retornamos a listagem de utilizadores novamente.
                         //
                         //Caso cliente selecionado seja null, então o utilizador esta na listagem de utilizadores e portanto fazemos update
@@ -659,19 +657,19 @@ public class MainGUI extends javax.swing.JFrame {
                         //
                         //O caso restante é que o utilizador esteja a ver a pasta partilhada de um outro utilizador que esta ativo e nesse
                         //caso não fazemos nada (As condições do if são relativas aos dois casos anteriores)
-                        if(!clientesLigados.contains(clienteSelecionado) || (clienteSelecionado == null)){
+                        if(!connectedClients.contains(selectedClient) || (selectedClient == null)){
                             //Atualizar lista
                             java.awt.EventQueue.invokeLater(new Runnable(){
                                 @Override
                                 public void run() {
                                     DefaultListModel<String> modelList = new DefaultListModel<String>();
-                                    for(Client client : clientesLigados){
+                                    for(Client client : connectedClients){
                                         modelList.addElement(client.getName() + " - " + client.getIpv4());
                                     }
                                     listaUtilizadoresAtivos.setModel(modelList);
                                     atrasButton.setEnabled(false);
                                     ipOwnerSharedDirectory = "";
-                                    clienteSelecionado = null;
+                                    selectedClient = null;
                                 }
 
                             });
@@ -698,7 +696,7 @@ public class MainGUI extends javax.swing.JFrame {
     private void listenFileRequest(){
         CommunicationProtocol request = null;
         try{
-            serverNetworkSocket = new ServerSocket(portNetwork);
+            serverNetworkSocket = new ServerSocket(networkPort);
             
             while(running){
                 Socket requestSocket;
@@ -794,13 +792,13 @@ public class MainGUI extends javax.swing.JFrame {
             Logger.getLogger(MainGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        if(Arrays.asList(filesScanned).containsAll(Arrays.asList(ficheirosPartilhados)) && Arrays.asList(ficheirosPartilhados).containsAll(Arrays.asList(filesScanned)) ){
+        if(Arrays.asList(filesScanned).containsAll(Arrays.asList(sharedFiles)) && Arrays.asList(sharedFiles).containsAll(Arrays.asList(filesScanned)) ){
             return;
         }
         else{
             System.out.println("Las pastas son diferentes");
             //Atualizar listagem local de pasta partilhada
-            ficheirosPartilhados = filesScanned;
+            sharedFiles = filesScanned;
             atualizarListagemPastaPartilhada();
             
             //Comunicar na rede a alteracao da pasta partilhada
@@ -808,10 +806,10 @@ public class MainGUI extends javax.swing.JFrame {
                 //Definir mensagem
                 CommunicationProtocol updateFilesRequest = new CommunicationProtocol("UPDATE_FILES");
                 updateFilesRequest.setFilesForUpdate(filesScanned);
-                updateFilesRequest.setSenderName(nameCliente);
+                updateFilesRequest.setSenderName(clientName);
                         
                 //Definir socket e streams
-                Socket socket = new Socket(ipServerInet, portServer);
+                Socket socket = new Socket(serverIpInet, serverPort);
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
                 
@@ -832,7 +830,7 @@ public class MainGUI extends javax.swing.JFrame {
                 socket.close();
                 
                 //Atualizar pasta local
-                ficheirosPartilhados = filesScanned;
+                sharedFiles = filesScanned;
                 
             } 
             catch (IOException | ClassNotFoundException ex) {
@@ -846,7 +844,7 @@ public class MainGUI extends javax.swing.JFrame {
             @Override
             public void run() {
                 DefaultListModel<String> modelList = new DefaultListModel<String>();
-                for(File files : ficheirosPartilhados){
+                for(File files : sharedFiles){
                     modelList.addElement(files.getName());
                 }
                 ficheirosDePastaPartilhadaJList.setModel(modelList);

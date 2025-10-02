@@ -11,7 +11,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,19 +42,19 @@ public class ConnectToServerDialogGUI extends javax.swing.JDialog {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
-        ipDoServidorTextField = new javax.swing.JTextField();
+        serverIpTextField = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        portoDoServidor = new javax.swing.JTextField();
+        serverPortTextField = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        nomeTextField = new javax.swing.JTextField();
-        ligarServidorButton = new javax.swing.JButton();
+        nameTextField = new javax.swing.JTextField();
+        javax.swing.JButton connectToServerButton = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
-        pastaPartilhadaTextField = new javax.swing.JTextField();
-        escolherPastaButton = new javax.swing.JButton();
+        sharedFolderTextField = new javax.swing.JTextField();
+        chooseFolderButton = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
-        portoFicheiros = new javax.swing.JTextField();
+        filesPortTextField = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        portoRede = new javax.swing.JTextField();
+        networkPortTextField = new javax.swing.JTextField();
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
@@ -69,19 +68,19 @@ public class ConnectToServerDialogGUI extends javax.swing.JDialog {
 
         jLabel3.setText("Name");
 
-        ligarServidorButton.setText("Connect to Server");
-        ligarServidorButton.addActionListener(new java.awt.event.ActionListener() {
+        connectToServerButton.setText("Connect to Server");
+        connectToServerButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ligarServidorButtonActionPerformed(evt);
+                connectToServerButtonActionPerformed(evt);
             }
         });
 
         jLabel4.setText("Folder to Share");
 
-        escolherPastaButton.setText("Choose Folder");
-        escolherPastaButton.addActionListener(new java.awt.event.ActionListener() {
+        chooseFolderButton.setText("Choose Folder");
+        chooseFolderButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                escolherPastaButtonActionPerformed(evt);
+                chooseFolderButtonActionPerformed(evt);
             }
         });
 
@@ -97,21 +96,21 @@ public class ConnectToServerDialogGUI extends javax.swing.JDialog {
                 .addGap(59, 59, 59)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel4)
-                    .addComponent(ligarServidorButton)
+                    .addComponent(connectToServerButton)
                     .addComponent(jLabel3)
                     .addComponent(jLabel2)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ipDoServidorTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
-                    .addComponent(portoDoServidor)
-                    .addComponent(nomeTextField)
+                    .addComponent(serverIpTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+                    .addComponent(serverPortTextField)
+                    .addComponent(nameTextField)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(pastaPartilhadaTextField)
+                        .addComponent(sharedFolderTextField)
                         .addGap(18, 18, 18)
-                        .addComponent(escolherPastaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(chooseFolderButton, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(portoFicheiros)
+                    .addComponent(filesPortTextField)
                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(portoRede))
+                    .addComponent(networkPortTextField))
                 .addContainerGap(59, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -120,46 +119,46 @@ public class ConnectToServerDialogGUI extends javax.swing.JDialog {
                 .addGap(39, 39, 39)
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
-                .addComponent(ipDoServidorTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(serverIpTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
-                .addComponent(portoDoServidor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(serverPortTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel5)
                 .addGap(18, 18, 18)
-                .addComponent(portoFicheiros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(filesPortTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel6)
                 .addGap(18, 18, 18)
-                .addComponent(portoRede, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(networkPortTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                 .addComponent(jLabel3)
                 .addGap(18, 18, 18)
-                .addComponent(nomeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(nameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel4)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pastaPartilhadaTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(escolherPastaButton))
+                    .addComponent(sharedFolderTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(chooseFolderButton))
                 .addGap(32, 32, 32)
-                .addComponent(ligarServidorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(connectToServerButton, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(52, 52, 52))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void ligarServidorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ligarServidorButtonActionPerformed
-        //Obter dados
-        String ipServer = ipDoServidorTextField.getText();
-        String portServer = portoDoServidor.getText();
-        String portFiles = portoFicheiros.getText();
-        String portNetwork = portoRede.getText();
-        String nomeCliente = nomeTextField.getText();
+    private void connectToServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectToServerButtonActionPerformed
+        //Get data
+        String ipServer = serverIpTextField.getText();
+        String portServer = serverPortTextField.getText();
+        String portFiles = filesPortTextField.getText();
+        String portNetwork = networkPortTextField.getText();
+        String nomeCliente = nameTextField.getText();
         
-        //Verificar dados
+        //Validate data
         InetAddress ipServerInet = null;
         int portServerInt = -1;
         int portFilesInt = -1;
@@ -168,7 +167,7 @@ public class ConnectToServerDialogGUI extends javax.swing.JDialog {
             ipServerInet = InetAddress.getByName(ipServer);
         }
         catch(UnknownHostException e){
-            JOptionPane.showMessageDialog(null, "IP inserida invalida", "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Invalid IP entered", "ERROR", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -178,36 +177,36 @@ public class ConnectToServerDialogGUI extends javax.swing.JDialog {
             portNetworkInt = Integer.parseInt(portNetwork);
             
             if(portServerInt < 1023 || portServerInt > 65535){
-                JOptionPane.showMessageDialog(null, "Porto do servidor fora do intervalo valido", "ERROR", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Server port is out of the valid range. Please enter a port between 1024 and 65535","ERROR", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             if(portFilesInt < 1023 || portFilesInt > 65535){
-                JOptionPane.showMessageDialog(null, "Porto de ficheiros fora do intervalo valido", "ERROR", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "File port is out of the valid range. Please enter a port between 1024 and 65535", "ERROR", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             if(portNetworkInt < 1023 || portNetworkInt > 65535){
-                JOptionPane.showMessageDialog(null, "Porto de rede fora do intervalo valido", "ERROR", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Network port is out of the valid range. Please enter a port between 1024 and 65535", "ERROR", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
         }
         catch(NumberFormatException e){
-            JOptionPane.showMessageDialog(null, "Porto inserido invalido", "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Invalid port entered", "ERROR", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        //Obter todos os ficheiros (incluindo de subdiretorias) de uma diretoria
+        // Get all files (including those in subdirectories) from a directory
         File sharedDirectory = new File(pathToSharedDirectory);
         if(sharedDirectory.exists() && sharedDirectory.isDirectory()){
             try {
-                //walk gera um stream. Um stream é uma forma de manipular colecções de dados de forma funcional,
-                //sem necessidade de ciclos tradicionais. Portanto, map e toArray 
-                //são metodos de Stream e aplicam-se a cada elemento do Stream.
-                
-                //walk percorre a diretoria toda, obtendo diretorias, subdiretorias e os seus ficheiros todos
-                //filter filtra os elementos de forma que só fiquem ficheiros e não as diretorias
-                //map converte esses caminhos a ficheiros
-                //toArray converte o stream num File[]
+                // walk generates a stream. A stream is a way to manipulate collections of data functionally,
+                // without the need for traditional loops. Therefore, map and toArray
+                // are Stream methods and are applied to each element of the stream.
+
+                // walk traverses the entire directory, obtaining directories, subdirectories, and all their files
+                // filter filters the elements so that only files remain, not directories
+                // map converts these paths to File objects
+                // toArray converts the stream into a File[]
                 files = Files.walk(Paths.get(pathToSharedDirectory))
                         .filter(path -> Files.isRegularFile(path))
                         .map(path -> path.toFile())
@@ -217,10 +216,10 @@ public class ConnectToServerDialogGUI extends javax.swing.JDialog {
             }
         }
         else{
-            JOptionPane.showMessageDialog(null, "A diretoria não existe", "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "The directory does not exist", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
         
-        //Enviar dados
+        //Send data
         try{
             Socket socketServer = new Socket(ipServerInet.getHostAddress(), portServerInt);
             ObjectOutputStream objectOutput = new ObjectOutputStream(socketServer.getOutputStream());
@@ -234,13 +233,13 @@ public class ConnectToServerDialogGUI extends javax.swing.JDialog {
             
             CommunicationProtocol response = (CommunicationProtocol) objectInput.readObject();
             
-            //Fechar recursos
+            //Close resources
             objectOutput.close();
             objectInput.close();
             socketServer.close();
             
             if(response.getCodeProtocol().equalsIgnoreCase("OK")){
-                JOptionPane.showMessageDialog(null, response.getMessage(),  "SUCESSO", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, response.getMessage(),  "SUCCESS", JOptionPane.INFORMATION_MESSAGE);
                 parentMain.recebirDadosLoginFromDialog(nomeCliente, portServerInt, portFilesInt, portNetworkInt, ipServerInet, response.getMulticastGroup(), response.getMulticastGroupPort(), pathToSharedDirectory, response.getActiveClients(), files);
             }
             else{
@@ -249,26 +248,26 @@ public class ConnectToServerDialogGUI extends javax.swing.JDialog {
             
         }
         catch(IOException | ClassNotFoundException e){
-            JOptionPane.showMessageDialog(null, "Ocorreu um problema ao tentar ligar ao servidor", "ERROR!", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "An error occurred while trying to connect to the server", "ERROR!", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
         
-    }//GEN-LAST:event_ligarServidorButtonActionPerformed
+    }//GEN-LAST:event_connectToServerButtonActionPerformed
 
-    private void escolherPastaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_escolherPastaButtonActionPerformed
+    private void chooseFolderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseFolderButtonActionPerformed
         FileChooserDialogGUI fileChooserDialog = new FileChooserDialogGUI(ConnectToServerDialogGUI.this, true);
         fileChooserDialog.setVisible(true);
-    }//GEN-LAST:event_escolherPastaButtonActionPerformed
+    }//GEN-LAST:event_chooseFolderButtonActionPerformed
 
     public void recebirDiretorioFromDialog(String path){
         pathToSharedDirectory = path;
-        pastaPartilhadaTextField.setText(path);
+        sharedFolderTextField.setText(path);
     }
    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton escolherPastaButton;
-    private javax.swing.JTextField ipDoServidorTextField;
+    private javax.swing.JButton chooseFolderButton;
+    private javax.swing.JTextField filesPortTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -277,11 +276,10 @@ public class ConnectToServerDialogGUI extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JButton ligarServidorButton;
-    private javax.swing.JTextField nomeTextField;
-    private javax.swing.JTextField pastaPartilhadaTextField;
-    private javax.swing.JTextField portoDoServidor;
-    private javax.swing.JTextField portoFicheiros;
-    private javax.swing.JTextField portoRede;
+    private javax.swing.JTextField nameTextField;
+    private javax.swing.JTextField networkPortTextField;
+    private javax.swing.JTextField serverIpTextField;
+    private javax.swing.JTextField serverPortTextField;
+    private javax.swing.JTextField sharedFolderTextField;
     // End of variables declaration//GEN-END:variables
 }

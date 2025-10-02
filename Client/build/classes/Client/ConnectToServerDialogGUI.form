@@ -44,22 +44,22 @@
               <EmptySpace min="-2" pref="59" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                  <Component id="ligarServidorButton" min="-2" max="-2" attributes="0"/>
+                  <Component id="connectToServerButton" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel1" min="-2" pref="113" max="-2" attributes="0"/>
-                  <Component id="ipDoServidorTextField" pref="389" max="32767" attributes="0"/>
-                  <Component id="portoDoServidor" alignment="0" max="32767" attributes="0"/>
-                  <Component id="nomeTextField" alignment="0" max="32767" attributes="0"/>
+                  <Component id="serverIpTextField" pref="389" max="32767" attributes="0"/>
+                  <Component id="serverPortTextField" alignment="0" max="32767" attributes="0"/>
+                  <Component id="nameTextField" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="pastaPartilhadaTextField" max="32767" attributes="0"/>
+                      <Component id="sharedFolderTextField" max="32767" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="escolherPastaButton" min="-2" pref="105" max="-2" attributes="0"/>
+                      <Component id="chooseFolderButton" min="-2" pref="105" max="-2" attributes="0"/>
                   </Group>
                   <Component id="jLabel5" min="-2" pref="213" max="-2" attributes="0"/>
-                  <Component id="portoFicheiros" alignment="0" max="32767" attributes="0"/>
+                  <Component id="filesPortTextField" alignment="0" max="32767" attributes="0"/>
                   <Component id="jLabel6" min="-2" pref="206" max="-2" attributes="0"/>
-                  <Component id="portoRede" alignment="0" max="32767" attributes="0"/>
+                  <Component id="networkPortTextField" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace pref="59" max="32767" attributes="0"/>
           </Group>
@@ -71,32 +71,32 @@
               <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="ipDoServidorTextField" min="-2" max="-2" attributes="0"/>
+              <Component id="serverIpTextField" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="portoDoServidor" min="-2" max="-2" attributes="0"/>
+              <Component id="serverPortTextField" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="portoFicheiros" min="-2" max="-2" attributes="0"/>
+              <Component id="filesPortTextField" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="portoRede" min="-2" max="-2" attributes="0"/>
+              <Component id="networkPortTextField" min="-2" max="-2" attributes="0"/>
               <EmptySpace pref="21" max="32767" attributes="0"/>
               <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="nomeTextField" min="-2" max="-2" attributes="0"/>
+              <Component id="nameTextField" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="pastaPartilhadaTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="escolherPastaButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sharedFolderTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="chooseFolderButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
-              <Component id="ligarServidorButton" min="-2" pref="37" max="-2" attributes="0"/>
+              <Component id="connectToServerButton" min="-2" pref="37" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -108,43 +108,47 @@
         <Property name="text" type="java.lang.String" value="IPv4 of the Server"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="ipDoServidorTextField">
+    <Component class="javax.swing.JTextField" name="serverIpTextField">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
         <Property name="text" type="java.lang.String" value="Server Port"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="portoDoServidor">
+    <Component class="javax.swing.JTextField" name="serverPortTextField">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
         <Property name="text" type="java.lang.String" value="Name"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="nomeTextField">
+    <Component class="javax.swing.JTextField" name="nameTextField">
     </Component>
-    <Component class="javax.swing.JButton" name="ligarServidorButton">
+    <Component class="javax.swing.JButton" name="connectToServerButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Connect to Server"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ligarServidorButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="connectToServerButtonActionPerformed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
       <Properties>
         <Property name="text" type="java.lang.String" value="Folder to Share"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="pastaPartilhadaTextField">
+    <Component class="javax.swing.JTextField" name="sharedFolderTextField">
     </Component>
-    <Component class="javax.swing.JButton" name="escolherPastaButton">
+    <Component class="javax.swing.JButton" name="chooseFolderButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Choose Folder"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="escolherPastaButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chooseFolderButtonActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
@@ -152,14 +156,14 @@
         <Property name="text" type="java.lang.String" value="Port for Receiving Files"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="portoFicheiros">
+    <Component class="javax.swing.JTextField" name="filesPortTextField">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>
         <Property name="text" type="java.lang.String" value="Port for Network Communications"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="portoRede">
+    <Component class="javax.swing.JTextField" name="networkPortTextField">
     </Component>
   </SubComponents>
 </Form>
