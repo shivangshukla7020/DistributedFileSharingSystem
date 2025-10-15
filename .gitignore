@@ -1,0 +1,20 @@
+# Ignore compiled class files
+*.class
+
+# Ignore build and dist folders
+build/
+dist/
+**/build/
+**/dist/
+
+# Ignore NetBeans private settings
+nbproject/private/
+
+# Ignore generated files
+built-jar.properties
+.netbeans_automatic_build
+.netbeans_update_resources
+
+# Ignore OS junk
+.DS_Store
+Thumbs.db
