@@ -1,6 +1,5 @@
 package Client;
 
-
 import Protocol.CommunicationProtocol;
 import Protocol.Client;
 import java.io.File;

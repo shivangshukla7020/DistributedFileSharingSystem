@@ -681,7 +681,7 @@ public class MainGUI extends javax.swing.JFrame {
                         notificationModel.addElement(notification);
                         break;
                     default:
-                        JOptionPane.showMessageDialog(null, "Não foi possivel entender a mensagem que o servidor enviou", "ERRO", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Unable to understand the message sent by the server", "ERROR", JOptionPane.ERROR_MESSAGE);
                         break;
                 }
                 
@@ -689,7 +689,7 @@ public class MainGUI extends javax.swing.JFrame {
             
         } catch (IOException ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error connecting to the Multicast group", "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Error connecting to the multicast group", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -706,14 +706,14 @@ public class MainGUI extends javax.swing.JFrame {
                 catch(SocketException ex){
                     continue;
                 }
-                System.out.println("Yo recibi el pedido");
+                System.out.println("I received the request");
                 ObjectInputStream objectInputStream = new ObjectInputStream(requestSocket.getInputStream());
                 
                 try{
                     request = (CommunicationProtocol) objectInputStream.readObject();
                 }
                 catch(EOFException e){
-                    JOptionPane.showMessageDialog(null, "Ocorreu um problema ao procesar o pedido de ficheiro de um outro cliente", "ERRO", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "An error occurred while processing a file request from another client", "ERROR", JOptionPane.ERROR_MESSAGE);
                 }
                 
                 switch(request.getCodeProtocol()){
@@ -721,7 +721,7 @@ public class MainGUI extends javax.swing.JFrame {
                         String fileNameRequested = request.getFileForRequest();
                         int portForSendingFile = request.getPortForSendingFile();
                         
-                        System.out.println("Estoy buscando el archivo para enviarlo");
+                        System.out.println("Searching for the file to send");
                         File fileRequested = Files.walk(Paths.get(pathToSharedDirectory))
                                 .filter(path -> Files.isRegularFile(path))
                                 .filter(path -> path.getFileName().toString().equals(fileNameRequested))
@@ -730,10 +730,10 @@ public class MainGUI extends javax.swing.JFrame {
                                 .orElse(null);
                         
                         if(fileRequested != null){
-                            System.out.println("El archivo no es null y su nombre es: " + fileRequested.getName());
+                            System.out.println("The file is not null and its name is: " + fileRequested.getName());
                         }
                         else{
-                            System.out.println("El archivo es null");
+                            System.out.println("The file is null");
                         }
                         
                         
@@ -745,25 +745,25 @@ public class MainGUI extends javax.swing.JFrame {
                         
                         break;
                     default:
-                        JOptionPane.showMessageDialog(null, "Foi recebido um pedido invalido de requisição de ficheiro", "ERRO", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "An invalid file request was received", "ERROR", JOptionPane.ERROR_MESSAGE);
                         break;
                 }
             }
         }
         catch(Exception e){
-            JOptionPane.showMessageDialog(null, "Ocorreu um problema ao escutar na rede por pedidos de ficheiros", "ERRO", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "An error occurred while listening on the network for file requests", "ERROR", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }
     
     private void sendFileRequested(String ipDestino, int portoDestino, File fileForSending){
         try{
-            //Definir socket e streams
+            // Define socket and streams
             Socket socket = new Socket(ipDestino, portoDestino);
             FileInputStream fileInputStream = new FileInputStream(fileForSending);
             OutputStream outputStream = socket.getOutputStream();
             
-            //Criar buffer para armazenar o ficheiro por partes
+            // Create buffer to store the file in parts
             byte[] buffer = new byte[1024];
             int bytesLidos;
             
@@ -777,7 +777,7 @@ public class MainGUI extends javax.swing.JFrame {
         }
         catch(Exception e){
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Ocorreu um problema ao enviar o ficheiro", "ERRO", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "An error occurred while sending the file", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -796,45 +796,45 @@ public class MainGUI extends javax.swing.JFrame {
             return;
         }
         else{
-            System.out.println("Las pastas son diferentes");
-            //Atualizar listagem local de pasta partilhada
+            System.out.println("The folders are different");
+            // Update local listing of the shared folder
             sharedFiles = filesScanned;
             atualizarListagemPastaPartilhada();
             
-            //Comunicar na rede a alteracao da pasta partilhada
+            // Notify the network about the shared folder change
             try {
-                //Definir mensagem
+                // Define message
                 CommunicationProtocol updateFilesRequest = new CommunicationProtocol("UPDATE_FILES");
                 updateFilesRequest.setFilesForUpdate(filesScanned);
                 updateFilesRequest.setSenderName(clientName);
                         
-                //Definir socket e streams
+                // Define socket and streams
                 Socket socket = new Socket(serverIpInet, serverPort);
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
                 
-                //Enviar dados
+                // Send data
                 objectOutputStream.writeObject(updateFilesRequest);
                 objectOutputStream.flush();
                 
-                //Receber resposta
+                // Receive response
                 CommunicationProtocol response;
                 response = (CommunicationProtocol) objectInputStream.readObject();
                 if(response.getCodeProtocol().equalsIgnoreCase("OK")){
                     System.out.println("Ficheiros atualizados corretamente");
                 }
                 
-                //Fechar recursos
+                // Close resources
                 objectOutputStream.close();
                 objectInputStream.close();
                 socket.close();
                 
-                //Atualizar pasta local
+                // Update local folder
                 sharedFiles = filesScanned;
                 
             } 
             catch (IOException | ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(null, "Problema ao informar dos novos ficheiros ao servidor", "ERROR", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Problem informing the server about new files", "ERROR", JOptionPane.ERROR_MESSAGE);
             } 
         }
     }
